@@ -1,25 +1,68 @@
-﻿using Cdp = ClassesDoPrograma;
+﻿// Declaração de variaveis de preços e apelidando nameespace.
+using System;
+using Cdp = ClassesDoPrograma;
+double preçoInicial, preçoPorHora;
+int opção;
 
 // fase inicial do programa, definições de preços.
 
 Console.WriteLine("Seja bem vindo ao sistema de estacionamento!");
 
 // Definindo o preço por estacionar.
-Console.Write("Digite o preço inicial: ");
-double preçoInicial = Convert.ToDouble(Console.ReadLine());
+while (true)
+{
+    try 
+    {
+        Console.Write("Digite o preço inicial: ");
+        preçoInicial = Convert.ToDouble(Console.ReadLine());
+        break;
+    }
+    catch (FormatException)
+    {
+        Console.WriteLine("ERRO: Por favor digite o preço inicial do estacionamento.");
+        Thread.Sleep(1500);
+        Console.Clear();
+    }
 
+}
 // Definindo o preço por hora.
-Console.Write("Digite o preço por hora: ");
-double preçoPorHora = Convert.ToDouble(Console.ReadLine());
+while (true)
+{
+    try
+    {
+        Console.Write("Digite o preço por hora: ");
+        preçoPorHora = Convert.ToDouble(Console.ReadLine());
+        break;
+    }
+    catch (FormatException)
+    {
+        Console.WriteLine("ERRO: Por favor digite o preço inicial do estacionamento.");
+        Thread.Sleep(1500);
+        Console.Clear();
+    }
+}
+
 
 Cdp.Estacionamento Estacionamento = new(preçoInicial, preçoPorHora);// Preços ficam amazernados aqui.
 
 while (true)
 {//Segunda fase do programa, genrenciamento do estacionamento.
  //Menu principal.
-
+    while (true)
+    {
+        try
+        {
+            Console.Clear();
+            opção = Cdp.Visual.Menu("Estacionamento", "Digite o numero da opção desejada", "Cadastrar Veiculos", "Listar Veiculos", "Remover Veiculos", "Encerrar");
+            break;
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("ERRO: Por favor, digite o numero da opção desejada.");
+            Thread.Sleep(1500);
+        }
+    }
     Console.Clear();
-    byte opção = Cdp.Visual.Menu("Estacionamento", "Digite o numero da opção desejada", "Cadastrar Veiculos", "Listar Veiculos", "Remover Veiculos", "Encerrar");
     switch (opção)
     {
         case 1:
@@ -48,12 +91,29 @@ while (true)
 
         case 3:
             //Se o menu principal retornar 3, este case será executado, onde acontecerá a cobrança e a remoção dos veiculos do estacionamento.
-
+            byte horasQueOVeiculoFicouEstacionado;
             Console.Write("Digite a placa do veiculo para remove-lo: ");
             string? veiculoASerVerificadoERemovido = Console.ReadLine();
-            Console.Write("Digite a quantidade de horas que o veiculo permaneceu no estacionamento: ");
-            byte horasQueOVeiculoFicouEstacionado = Convert.ToByte(Console.ReadLine());
-            
+            while (true)
+            {
+                try
+                {
+                    Console.Clear();
+                    Console.Write("Digite a quantidade de horas que o veiculo permaneceu no estacionamento: ");
+                    horasQueOVeiculoFicouEstacionado = Convert.ToByte(Console.ReadLine());
+                    break;
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("ERRO: digite o numero de horas que o veiculo ficou estacionado.");
+                    Thread.Sleep(1500);
+                }
+                catch (OverflowException)
+                {
+                    Console.WriteLine("ERRO: Digite um valor valido.");
+                    Thread.Sleep(1500);
+                }
+            }
             // Verificação acontece aqui.
             bool veiculoEstaNoEstacionamento/*?*/ = Estacionamento.VerificaçãoEExclusãoDoVeiculo(veiculoASerVerificadoERemovido);
 
@@ -66,7 +126,7 @@ while (true)
                 double preçoACobrar = Estacionamento.RealizarCobrança(horasQueOVeiculoFicouEstacionado);
                 Console.WriteLine($"Remoção do veiculo realizada com sucesso! Preço a cobrar: {preçoACobrar:c}");
             }
-            else 
+            else
 
             // Senão a mensagem a baixo vai ser exibida.
 
@@ -79,7 +139,8 @@ while (true)
         case 4:
             // Se menu principal retornar 4, o programa será encerrado.
 
-            break;
+            return 0;
+                
 
         default:
             // Se o usuario digitar uma opção que o menu principal não tem, a mensagem abaixo vai ser exibida.
@@ -88,11 +149,8 @@ while (true)
 
             break;
     }
-    if (opção == 4)
-    {
-        break; // Encerrando o programa.
-    }
-
+        
+    
     Console.WriteLine("Aperte enter para continuar.");
     Console.ReadLine();
 }
@@ -197,10 +255,13 @@ namespace ClassesDoPrograma
         ///     2 - opçõesDoMenu
         ///     3 - opçõesDoMenu
         ///     =-=-=-=-=-=-=-=-=-=-=-=-=
-        ///     mensagemDeEscolha:     
+        ///     mensagemDeEscolha:
+        ///     
+        ///Se o valor for muito grande, o método retornará 0.
         ///</summary>>
         {
-            int i = 0;
+            byte i = 0;
+            byte escolha;
             Titulo(titulo);
             foreach (string? opções in opçõesDoMenu)
             {
@@ -209,8 +270,14 @@ namespace ClassesDoPrograma
             }
             Linha();
             Console.Write($"{mensagemDeEscolha}: ");
-            byte escolha = Convert.ToByte(Console.ReadLine());
-
+            try
+            {
+                escolha = Convert.ToByte(Console.ReadLine());
+            }
+            catch (OverflowException)
+            {
+                escolha = 0;
+            }
             return escolha;
         }
     }
